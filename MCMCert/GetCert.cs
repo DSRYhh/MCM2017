@@ -16,19 +16,17 @@ namespace MCMCert
 
         private const string BaseAddress = @"http://www.comap-math.com/";
         private const string BasePath = @"D:\Users Documents\Desktop\MCM2017Certs";
-        public static async Task<string> SaveCert(string controlNumber)
+        public static async void SaveCert(string controlNumber)
         {
 
             var path = Path.Combine(BasePath, $"{controlNumber}.pdf");
             if (File.Exists(path))
             {
                 Console.WriteLine($"File {controlNumber}.pdf existed. Abort.");
-                return $"insert ignore into cache (entry,type) values ('{controlNumber}','Exist');";
-            }
-            else
-            {
-                //return null;
-                Console.WriteLine($"File {controlNumber}.pdf not found. Abort.");
+                var command = $"insert ignore into cache (entry,type) values ('{controlNumber}','Exist');";
+                await Cache.InsertAsync(command);
+
+                return;
             }
 
             using (var handler = new HttpClientHandler())
@@ -47,7 +45,11 @@ namespace MCMCert
                             {
                                 content.CopyTo(stream);
                                 Console.WriteLine($"Download {controlNumber} competed.");
-                                return null;
+
+                                var command = $"insert ignore into cache (entry,type) values ('{controlNumber}','Exist');";
+                                await Cache.InsertAsync(command);
+
+                                return;
                             }
                         }
                     }
@@ -57,25 +59,37 @@ namespace MCMCert
                         {
                             Console.WriteLine($"{response.StatusCode} occured in {controlNumber}, retry.");
                             Thread.Sleep(WaitingTime);
-                            return await SaveCert(controlNumber);
+                            //return await SaveCert(controlNumber);
+                            SaveCert(controlNumber);
+                            return;
                         }
                         else if (response.StatusCode == HttpStatusCode.NotFound)
                         {
                             Console.WriteLine($"{response.StatusCode} occured in {controlNumber}, abort.");
-                            return $"insert ignore into cache (entry,type) values ('{controlNumber}','NotFound');";
+                            var command =
+                                $"insert ignore into cache (entry,type) values ('{controlNumber}','NotFound');";
+                            await Cache.InsertAsync(command);
+                            return;
                         }
-                        Console.WriteLine($"{response.StatusCode} occured in {controlNumber}, abort.");
+                        else
+                        {
+                            Console.WriteLine($"{response.StatusCode} occured in {controlNumber}, retry.");
+                            Thread.Sleep(WaitingTime);
+                            SaveCert(controlNumber);
+                            return;
+                        }
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine($"{e.Message} occured in {controlNumber}, retry.");
                     Thread.Sleep(WaitingTime);
-                    return await SaveCert(controlNumber);
+                    //return await SaveCert(controlNumber);
+                    SaveCert(controlNumber);
+                    return;
                 }
                 
             }
-            return null;
         }
     }
 }

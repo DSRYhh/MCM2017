@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MCMCert", "MCMCert\MCMCert.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CertDataReadOut", "CertDataReadOut\CertDataReadOut.csproj", "{B45C8F1C-4F64-4303-A394-60F1866B285E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Result", "Result", "{8B7BF0F2-D0F4-4791-9886-F3086CC9DB82}"
+	ProjectSection(SolutionItems) = preProject
+		Result\prize.csv = Result\prize.csv
+		Result\prize.sql = Result\prize.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

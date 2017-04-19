@@ -10,7 +10,6 @@ namespace CertDataReadOut
     {
         public static PrizeInfo Parse(string path)
         {
-            Console.Clear();
             Console.WriteLine($"Begin to process {path}");
 
             //Create an instance of our strategy
@@ -50,7 +49,7 @@ namespace CertDataReadOut
                                                  where item.Value.Contains("With Faculty Advisor")
                                                  select item).First());
                 var indexUniversity = list.IndexOf((from item in list
-                                                    where item.Value.Contains("Of")
+                                                    where item.Value.Trim() == "Of"
                                                     select item).First());
                 var indexPrize = list.IndexOf((from item in list
                                                where item.Value.Contains("Was Designated As")

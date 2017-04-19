@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,8 @@ namespace MCMCert
             Task();
             Console.ReadLine();
         }
-        static async void Task()
+
+        private static void Task()
         {
             string connectionString = "server=localhost;uid=root;" +
     "pwd=notlove*;database=mcm2017;";
@@ -50,47 +52,18 @@ namespace MCMCert
             }
 
             Queue<string> commands = new Queue<string>();
+            int count = 0;
             for (int i = 50000; i < 80000; i++)
             {
                 if (cache.Contains(i.ToString()))
                 {
                     continue;
                 }
-                var log = await GetCert.SaveCert(i.ToString());
-                if (i % 1000 == 0 && i != 50000)
+                GetCert.SaveCert(i.ToString());
+                count++;
+                if (count % 1000 == 0 && i != 0)
                 {
-                    //Thread.Sleep(40000);
-                    using (
-                        MySql.Data.MySqlClient.MySqlConnection conn = new MySqlConnection()
-                        {
-                            ConnectionString = connectionString
-                        })
-                    {
-
-                        try
-                        {
-                            conn.Open();
-                        }
-                        catch (MySql.Data.MySqlClient.MySqlException)
-                        {
-                            throw;
-                        }
-                        while (commands.Count != 0)
-                        {
-                            var command = commands.Dequeue();
-                            MySqlCommand cmd = new MySqlCommand
-                            {
-                                CommandText = command,
-                                Connection = conn,
-                                CommandType = CommandType.Text
-                            };
-                            cmd.ExecuteReader();
-                        }
-                    }
-                }
-                if (log != null)
-                {
-                    commands.Enqueue(log);
+                    Thread.Sleep(20000);
                 }
             }
         }
